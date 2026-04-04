@@ -9,7 +9,19 @@ plugins {
     alias(libs.plugins.android.library)
 }
 
+val purgeLegacyWgGoArtifacts by tasks.registering(Delete::class) {
+    delete(fileTree(layout.buildDirectory) {
+        include("**/libwg-go.so")
+        include("**/libwg.so")
+        include("**/libwg-quick.so")
+    })
+}
+
 android {
+    compileSdk = 36
+    defaultConfig {
+        minSdk = 26
+    }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
@@ -27,7 +39,7 @@ android {
         all {
             externalNativeBuild {
                 cmake {
-                    targets("libwg-go.so", "libwg.so", "libwg-quick.so")
+                    targets("libamneziawg_go.so", "libamneziawg.so", "libamneziawg_quick.so")
                     arguments("-DGRADLE_USER_HOME=${project.gradle.gradleUserHomeDir}")
                 }
             }
@@ -51,6 +63,10 @@ android {
         disable += "LongLogTag"
         disable += "NewApi"
     }
+}
+
+tasks.named("preBuild") {
+    dependsOn(purgeLegacyWgGoArtifacts)
 }
 
 dependencies {
