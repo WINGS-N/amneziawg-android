@@ -31,10 +31,12 @@ add_custom_target(libamneziawg_go.so WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_D
     BUILDDIR=${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/../generated-src
 )
 
-# Strip unwanted ELF sections to prevent DT_FLAGS_1 warnings on old Android versions
+# Strip unwanted ELF sections to prevent DT_FLAGS_1 warnings on old Android versions.
+# elf-cleaner now requires C++20, so build it with the configured C++ compiler.
 file(GLOB ELF_CLEANER_SOURCES elf-cleaner/*.c elf-cleaner/*.cpp)
-add_custom_target(elf-cleaner COMMENT "Building elf-cleaner" VERBATIM COMMAND cc
-        -O2 -DPACKAGE_NAME="elf-cleaner" -DPACKAGE_VERSION="" -DCOPYRIGHT=""
+add_custom_target(elf-cleaner COMMENT "Building elf-cleaner" VERBATIM COMMAND "${CMAKE_CXX_COMPILER}"
+        -O2 -std=gnu++20
+        -DPACKAGE_NAME="elf-cleaner" -DPACKAGE_VERSION="" -DCOPYRIGHT=""
         -o "${CMAKE_CURRENT_BINARY_DIR}/elf-cleaner" ${ELF_CLEANER_SOURCES}
 )
 add_custom_command(TARGET libamneziawg.so POST_BUILD VERBATIM COMMAND "${CMAKE_CURRENT_BINARY_DIR}/elf-cleaner"
